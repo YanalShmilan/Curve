@@ -20,6 +20,11 @@ import { read, utils } from 'xlsx';
 
 // Types
 import IStudent from './interfaces/IStudent';
+import Sections from './components/Sections';
+
+// Utils
+import _ from 'lodash';
+import Charts from './components/Charts';
 
 function App() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -64,6 +69,19 @@ function App() {
       }
     }
   };
+
+  // Group data by row
+  const grouped = _.groupBy(data, '__rowNum__');
+
+  // Shape data for spreadsheet
+  const [spreadSheetData, setSpreadSheetData] = useState<any[]>(
+    Object.values(grouped).map((row: any) => {
+      const newData = Object.values(row[0]).map((item: any) => {
+        return item;
+      });
+      return newData;
+    })
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
@@ -127,12 +145,17 @@ function App() {
               <TabPanel key={'home'} value={'home'}>
                 <Home
                   data={data}
-                  setData={setData}
-                  sheetData={sheetData}
+                  setSpreadSheetData={setSpreadSheetData}
                 />
               </TabPanel>
               <TabPanel key={'sections'} value={'sections'}>
-                Sections
+                <Sections
+                  data={data}
+                  setSpreadSheetData={setSpreadSheetData}
+                />
+              </TabPanel>
+              <TabPanel key={'charts'} value={'charts'}>
+                <Charts data={data} />
               </TabPanel>
             </TabsBody>
           </Tabs>
