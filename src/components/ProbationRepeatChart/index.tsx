@@ -83,9 +83,10 @@ const ProbationRepeatChart = ({
                   <div className="flex flex-col h-full w-full items-start px-4">
                     <h1 className="font-bold">{item}</h1>
                     <h1 className="font-bold self-center">
-                      {(repeat[item].length / data.length).toFixed(
-                        2
-                      ) + '%'}
+                      {(
+                        repeat[item].length /
+                        (data.length - 1)
+                      ).toFixed(2) + '%'}
                     </h1>
                     <h1 className="font-bold self-center">
                       {repeat[item].length}
@@ -123,7 +124,7 @@ const ProbationRepeatChart = ({
                     <h1 className="font-bold">{item}</h1>
                     <h1 className="font-bold self-center">
                       {(
-                        (probation[item].length / data.length) *
+                        (probation[item].length / (data.length - 1)) *
                         100
                       ).toFixed(2) + '%'}
                     </h1>

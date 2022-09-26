@@ -25,7 +25,7 @@ const GpaChart = ({ data }: departmentsChartProps) => {
       // @ts-ignore
       .filter((student) => student.GPA !== 'GPA')
       .map((student) => {
-        if (student.GPA >= 3.5) {
+        if (student.GPA >= 3.67) {
           return { ...student, GPA: 'A' };
         } else if (student.GPA >= 3) {
           return { ...student, GPA: 'B' };

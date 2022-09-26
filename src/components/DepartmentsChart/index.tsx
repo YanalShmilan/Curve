@@ -33,7 +33,8 @@ const DepartmentsChart = ({ data }: departmentsChartProps) => {
           department +
           ' ' +
           (
-            (dataByDepartment[department].length / data.length) *
+            (dataByDepartment[department].length /
+              (data.length - 1)) *
             100
           ).toFixed(2) +
           '%',
