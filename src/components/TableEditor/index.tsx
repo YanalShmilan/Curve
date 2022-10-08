@@ -1,9 +1,6 @@
 // Components
 import { Tooltip } from '@material-tailwind/react';
 
-// Interfaces
-import IStudent from '../../interfaces/IStudent';
-
 // Utils
 import _ from 'lodash';
 import cx from 'classnames';

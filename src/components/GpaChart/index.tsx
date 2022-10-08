@@ -25,13 +25,14 @@ const GpaChart = ({ data }: departmentsChartProps) => {
       // @ts-ignore
       .filter((student) => student.GPA !== 'GPA')
       .map((student) => {
-        if (student.GPA >= 3.67) {
+        const gpa = (student.GPA + 1) * 20;
+        if (gpa >= 90) {
           return { ...student, GPA: 'A' };
-        } else if (student.GPA >= 2.67) {
+        } else if (gpa >= 80) {
           return { ...student, GPA: 'B' };
-        } else if (student.GPA >= 1.67) {
+        } else if (gpa >= 70) {
           return { ...student, GPA: 'C' };
-        } else if (student.GPA >= 1) {
+        } else if (gpa >= 60) {
           return { ...student, GPA: 'D' };
         } else {
           return { ...student, GPA: 'F' };
