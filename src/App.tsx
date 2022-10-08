@@ -25,6 +25,7 @@ import Sections from './components/Sections';
 // Utils
 import _ from 'lodash';
 import Charts from './components/Charts';
+import Emails from './components/Emails';
 
 function App() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -149,7 +150,7 @@ function App() {
                 <Charts data={data} />
               </TabPanel>
               <TabPanel key={'emails'} value={'emails'}>
-                <Button>Send Emails</Button>
+                {/* <Emails /> */}
               </TabPanel>
             </TabsBody>
           </Tabs>

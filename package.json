@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^35.2.0",
+    "@ckeditor/ckeditor5-react": "^5.0.2",
     "@handsontable/react": "^12.1.2",
     "@material-tailwind/react": "^1.2.4",
     "@nivo/bar": "^0.80.0",
@@ -17,6 +19,8 @@
     "@types/node": "^16.11.59",
     "@types/react": "^18.0.20",
     "@types/react-dom": "^18.0.6",
+    "alloyeditor": "^2.14.8",
+    "alloyeditor-react-component": "^1.1.0",
     "assert": "^2.0.0",
     "base64-to-uint8array": "^1.0.0",
     "buffer": "^6.0.3",
