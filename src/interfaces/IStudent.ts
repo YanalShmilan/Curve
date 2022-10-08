@@ -10,6 +10,7 @@ interface IStudent {
   'Credit Registered': number;
   'Repeat Count': number;
   'Probation Count': number;
+  // 'Is GPA Probated?': string;
   Major: string;
   Status?: string;
   Nationality: string;

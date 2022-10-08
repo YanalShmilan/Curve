@@ -36,10 +36,10 @@ const GenderChart = ({ data }: genderChartProps) => {
   });
 
   return (
-    <Card className="w-full">
+    <>
       <CardHeader
         color="white"
-        className="relative h-80 flex flex-row flex-wrap"
+        className="relative h-64 flex flex-row flex-wrap"
       >
         <ResponsiveBar
           data={chartData}
@@ -144,7 +144,7 @@ const GenderChart = ({ data }: genderChartProps) => {
           Students Gender
         </Typography>
       </CardFooter>
-    </Card>
+    </>
   );
 };
 

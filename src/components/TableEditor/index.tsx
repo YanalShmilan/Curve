@@ -72,7 +72,7 @@ const TableEditor = ({
           />
         </Tooltip>
       </div>
-      <div id="hot-app" className="bg-red-200 w-full">
+      <div id="hot-app" className="w-full">
         <HotTable
           data={spreadSheetData}
           colHeaders={true}

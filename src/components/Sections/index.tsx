@@ -24,7 +24,8 @@ const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
 
   // Removing empty sections
   if (Object.keys(dataBySection).length > 0) {
-    sectionNumbers = Object.keys(dataBySection).slice(0, -1);
+    // remove last element
+    sectionNumbers = Object.keys(dataBySection).slice(1, -1);
   } else {
     sectionNumbers = Object.keys(dataBySection);
   }

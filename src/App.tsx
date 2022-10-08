@@ -56,6 +56,7 @@ function App() {
               'GPA',
               'Credit Registered',
               'Repeat Count',
+              'Is GPA Probated?',
               'Probation Count',
               'Major',
               'Status',
@@ -64,24 +65,10 @@ function App() {
             defval: '',
           }
         );
-
         setData(sheetData);
       }
     }
   };
-
-  // Group data by row
-  const grouped = _.groupBy(data, '__rowNum__');
-
-  // Shape data for spreadsheet
-  const [spreadSheetData, setSpreadSheetData] = useState<any[]>(
-    Object.values(grouped).map((row: any) => {
-      const newData = Object.values(row[0]).map((item: any) => {
-        return item;
-      });
-      return newData;
-    })
-  );
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
@@ -135,6 +122,13 @@ function App() {
               >
                 Charts
               </Tab>
+              <Tab
+                key={'emails'}
+                value={'emails'}
+                className="text-white"
+              >
+                Emails
+              </Tab>
             </TabsHeader>
             <TabsBody
               animate={{
@@ -143,19 +137,19 @@ function App() {
               }}
             >
               <TabPanel key={'home'} value={'home'}>
-                <Home
-                  data={data}
-                  setSpreadSheetData={setSpreadSheetData}
-                />
+                <Home data={data} setSpreadSheetData={setSheetData} />
               </TabPanel>
               <TabPanel key={'sections'} value={'sections'}>
                 <Sections
                   data={data}
-                  setSpreadSheetData={setSpreadSheetData}
+                  setSpreadSheetData={setSheetData}
                 />
               </TabPanel>
               <TabPanel key={'charts'} value={'charts'}>
                 <Charts data={data} />
+              </TabPanel>
+              <TabPanel key={'emails'} value={'emails'}>
+                <Button>Send Emails</Button>
               </TabPanel>
             </TabsBody>
           </Tabs>

@@ -27,11 +27,11 @@ const GpaChart = ({ data }: departmentsChartProps) => {
       .map((student) => {
         if (student.GPA >= 3.67) {
           return { ...student, GPA: 'A' };
-        } else if (student.GPA >= 3) {
+        } else if (student.GPA >= 2.67) {
           return { ...student, GPA: 'B' };
-        } else if (student.GPA >= 2.5) {
+        } else if (student.GPA >= 1.67) {
           return { ...student, GPA: 'C' };
-        } else if (student.GPA >= 2) {
+        } else if (student.GPA >= 1) {
           return { ...student, GPA: 'D' };
         } else {
           return { ...student, GPA: 'F' };
@@ -39,16 +39,14 @@ const GpaChart = ({ data }: departmentsChartProps) => {
       }),
     'GPA'
   ) as any;
-  console.log(dataByGpa);
 
   const gpaKeys = Object.keys(dataByGpa);
-  console.log(gpaKeys);
 
   return (
-    <Card className="w-full">
+    <>
       <CardHeader
         color="white"
-        className="relative h-80 flex flex-row flex-wrap"
+        className="relative h-64 flex flex-row flex-wrap"
       >
         <div className="flex flex-row flex-wrap h-full w-full gap-x-3 justify-center">
           {gpaKeys.sort().map((gpa) => {
@@ -72,8 +70,8 @@ const GpaChart = ({ data }: departmentsChartProps) => {
               },
             ];
             return (
-              <div className="w-1/6 relative">
-                <div className=" absolute top-36 left-1/2 -ml-2 font-bold text-2xl">
+              <div className="w-1/6 relative h-full text-xs font-bold">
+                <div className=" absolute top-28 left-1/2 -ml-2  text-2xl">
                   {gpa}
                 </div>
                 <ResponsivePie
@@ -129,7 +127,7 @@ const GpaChart = ({ data }: departmentsChartProps) => {
                     },
                   ]}
                 />
-                <div className="absolute bottom-12 text-center w-full flex flex-col">
+                <div className="absolute bottom-8 text-center w-full flex flex-col">
                   <h1>{dataByGpa[gpa].length + ' Students'}</h1>
                   {(
                     (dataByGpa[gpa].length / data.length) *
@@ -151,7 +149,7 @@ const GpaChart = ({ data }: departmentsChartProps) => {
           Letter Grades Distribution Based on Students GPA
         </Typography>
       </CardFooter>
-    </Card>
+    </>
   );
 };
 

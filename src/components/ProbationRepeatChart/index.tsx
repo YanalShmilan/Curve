@@ -53,7 +53,7 @@ const ProbationRepeatChart = ({
       : Object.keys(repeat);
 
   return (
-    <Card className="w-full">
+    <>
       <CardHeader color="white" className="relative h-80">
         <div className="flex flex-col justify-evenly h-full ml-2">
           <div className="flex flex-row gap-1">
@@ -67,21 +67,24 @@ const ProbationRepeatChart = ({
               return (
                 <Card
                   key={index}
-                  className={cx(`w-fit`, {
-                    'bg-red-50': index == 0,
-                    'bg-red-100': index == 1,
-                    'bg-red-200': index == 2,
-                    'bg-red-300': index == 3,
-                    'bg-red-400': index == 4,
-                    'bg-red-500': index == 5,
-                    'bg-red-600': index == 6,
-                    'bg-red-700': index == 7,
-                    'bg-red-800': index == 8,
-                    'bg-red-900': index == 9,
-                  })}
+                  className={cx(
+                    `w-16 h-16 pt-1 rounded-tr-none rounded-bl-none`,
+                    {
+                      'bg-red-50': index == 0,
+                      'bg-red-100': index == 1,
+                      'bg-red-200': index == 2,
+                      'bg-red-300': index == 3,
+                      'bg-red-400': index == 4,
+                      'bg-red-500': index == 5,
+                      'bg-red-600': index == 6,
+                      'bg-red-700': index == 7,
+                      'bg-red-800': index == 8,
+                      'bg-red-900': index == 9,
+                    }
+                  )}
                 >
-                  <div className="flex flex-col h-full w-full items-start px-4">
-                    <h1 className="font-bold">{item}</h1>
+                  <div className="flex flex-col h-full w-full items-start px-4 text-sm">
+                    <h1 className="font-bold ">{item}</h1>
                     <h1 className="font-bold self-center">
                       {(
                         repeat[item].length /
@@ -107,20 +110,23 @@ const ProbationRepeatChart = ({
               return (
                 <Card
                   key={index}
-                  className={cx(`w-fit`, {
-                    'bg-red-50': index == 0,
-                    'bg-red-100': index == 1,
-                    'bg-red-200': index == 2,
-                    'bg-red-300': index == 3,
-                    'bg-red-400': index == 4,
-                    'bg-red-500': index == 5,
-                    'bg-red-600': index == 6,
-                    'bg-red-700': index == 7,
-                    'bg-red-800': index == 8,
-                    'bg-red-900': index == 9,
-                  })}
+                  className={cx(
+                    `w-16 h-16 rounded-tr-none rounded-bl-none`,
+                    {
+                      'bg-red-50': index == 0,
+                      'bg-red-100': index == 1,
+                      'bg-red-200': index == 2,
+                      'bg-red-300': index == 3,
+                      'bg-red-400': index == 4,
+                      'bg-red-500': index == 5,
+                      'bg-red-600': index == 6,
+                      'bg-red-700': index == 7,
+                      'bg-red-800': index == 8,
+                      'bg-red-900': index == 9,
+                    }
+                  )}
                 >
-                  <div className="flex flex-col h-full w-full items-start px-4">
+                  <div className="flex flex-col h-full w-full items-start mt-1 px-4 text-sm">
                     <h1 className="font-bold">{item}</h1>
                     <h1 className="font-bold self-center">
                       {(
@@ -148,7 +154,7 @@ const ProbationRepeatChart = ({
           Students Repeat and Probation Count
         </Typography>
       </CardFooter>
-    </Card>
+    </>
   );
 };
 
