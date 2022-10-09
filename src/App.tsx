@@ -25,7 +25,7 @@ import Sections from './components/Sections';
 // Utils
 import _ from 'lodash';
 import Charts from './components/Charts';
-import Emails from './components/Emails';
+import Emails from './components/Emails/index';
 
 function App() {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -87,7 +87,7 @@ function App() {
             />
             <label htmlFor="contained-button-file">
               <Button
-                className="flex items-center gap-2 animate-bounce"
+                className="flex btnActive items-center gap-2 animate-bounce"
                 onClick={() => fileInput?.current?.click()}
               >
                 <AddSquare />
@@ -142,15 +142,21 @@ function App() {
               </TabPanel>
               <TabPanel key={'sections'} value={'sections'}>
                 <Sections
-                  data={data}
+                  data={data.filter((student) => {
+                    return student.Status !== 'Withdrawn';
+                  })}
                   setSpreadSheetData={setSheetData}
                 />
               </TabPanel>
               <TabPanel key={'charts'} value={'charts'}>
-                <Charts data={data} />
+                <Charts
+                  data={data.filter((student) => {
+                    return student.Status !== 'Withdrawn';
+                  })}
+                />
               </TabPanel>
               <TabPanel key={'emails'} value={'emails'}>
-                {/* <Emails /> */}
+                <Emails />
               </TabPanel>
             </TabsBody>
           </Tabs>

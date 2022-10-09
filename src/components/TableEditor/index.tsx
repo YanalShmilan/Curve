@@ -70,6 +70,7 @@ const TableEditor = ({
         </Tooltip>
       </div>
       <div id="hot-app" className="w-full">
+        {/* @ts-ignore */}
         <HotTable
           data={spreadSheetData}
           colHeaders={true}
@@ -80,7 +81,7 @@ const TableEditor = ({
           height="700"
           width="100%"
           stretchH="all"
-          modifyColWidth={function (width, col) {
+          modifyColWidth={function (width: any, col: any) {
             if (col === 0) {
               return 50;
             }
@@ -125,7 +126,7 @@ const TableEditor = ({
             }
           }}
           wordWrap={false}
-          afterChange={(changes, source) => {
+          afterChange={(changes: any, source: any) => {
             if (source === 'edit' && changes) {
               const rowIndex = changes[0][0];
               const colIndex = changes[0][1];

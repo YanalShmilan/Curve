@@ -41,9 +41,6 @@ const Charts = ({ data }: chartsProps) => {
       ? data
       : data.filter((item) => item.Section == selectedSection);
 
-  const getPageMargins = () => {
-    return `@page { margin: 20 20 20 20 !important; }`;
-  };
   const componentRef = useRef(null);
   return (
     <div className="flex flex-col gap-y-4 ">
@@ -87,9 +84,10 @@ const Charts = ({ data }: chartsProps) => {
         })}
       </div>
       {/* <div onClick={exportAsPdf}>Export As Pdf</div> */}
+      {/* @ts-ignore */}
       <ReactToPrint
         trigger={() => (
-          <Button className="w-fit mx-auto animate-pulse">
+          <Button className=" btnActive w-fit mx-auto animate-pulse">
             Print this out!
           </Button>
         )}
@@ -134,6 +132,11 @@ const Charts = ({ data }: chartsProps) => {
                 <h1 className=" font-normal text-gray-800">
                   {selectedSection == 0 ? 'Sections' : 'Section'}
                 </h1>
+              </div>
+              <div className=" absolute top-24 z-50 w-max right-2">
+                {selectedSection == 0
+                  ? null
+                  : filterdData[0]['Instruction Name Arabic']}
               </div>
             </Card>
           </div>

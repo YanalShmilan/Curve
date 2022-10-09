@@ -63,11 +63,13 @@ const GpaChart = ({ data }: departmentsChartProps) => {
                   ).toFixed(2) +
                   '%',
                 value: dataByGpa[gpa].length,
+                color: '#F47660',
               },
               {
                 id: 'Others',
                 label: '',
                 value: data.length - dataByGpa[gpa].length,
+                color: '#E7C1A0',
               },
             ];
             return (
@@ -87,6 +89,7 @@ const GpaChart = ({ data }: departmentsChartProps) => {
                     from: 'color',
                     modifiers: [['darker', 0.2]],
                   }}
+                  colors={{ datum: 'data.color' }}
                   arcLinkLabelsSkipAngle={10}
                   isInteractive={false}
                   arcLinkLabelsTextColor="#333333"
