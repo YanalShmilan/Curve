@@ -37,9 +37,9 @@ const Charts = ({ data }: chartsProps) => {
 
   // filter data by section
   const filterdData =
-    selectedSection === 0
-      ? data
-      : data.filter((item) => item.Section == selectedSection);
+    selectedSection === 0 ? data : dataBySection[selectedSection];
+
+  console.log(dataBySection[selectedSection]);
 
   const componentRef = useRef(null);
   return (

@@ -31,10 +31,9 @@ const ProbationRepeatChart = ({
     'Probation Count'
   ) as any;
 
-  const probationKeys =
-    Object.keys(probation).length > 1
-      ? Object.keys(probation).slice(0, -1)
-      : Object.keys(probation);
+  const probationKeys = Object.keys(probation).filter(
+    (key) => key !== 'Probation Count'
+  );
 
   const repeat = _.groupBy(
     // @ts-ignore
@@ -47,10 +46,9 @@ const ProbationRepeatChart = ({
     'Repeat Count'
   ) as any;
 
-  const repeatKeys =
-    Object.keys(repeat).length > 1
-      ? Object.keys(repeat).slice(0, -1)
-      : Object.keys(repeat);
+  const repeatKeys = Object.keys(repeat).filter(
+    (key) => key !== ' Repeat Count'
+  );
 
   return (
     <>
@@ -87,8 +85,8 @@ const ProbationRepeatChart = ({
                     <h1 className="font-bold ">{item}</h1>
                     <h1 className="font-bold self-center">
                       {(
-                        repeat[item].length /
-                        (data.length - 1)
+                        (repeat[item].length / data.length) *
+                        100
                       ).toFixed(2) + '%'}
                     </h1>
                     <h1 className="font-bold self-center">
@@ -130,7 +128,7 @@ const ProbationRepeatChart = ({
                     <h1 className="font-bold">{item}</h1>
                     <h1 className="font-bold self-center">
                       {(
-                        (probation[item].length / (data.length - 1)) *
+                        (probation[item].length / data.length) *
                         100
                       ).toFixed(2) + '%'}
                     </h1>

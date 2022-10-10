@@ -49,8 +49,7 @@ const GenderChart = ({ data }: genderChartProps) => {
           colorBy="indexValue"
           legendLabel={(datum) =>
             `${datum.data?.id} (${
-              ((datum.value! / (data.length - 1)) * 100).toFixed(2) +
-              '%'
+              ((datum.value! / data.length) * 100).toFixed(2) + '%'
             })`
           }
           groupMode="grouped"
