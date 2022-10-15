@@ -15,11 +15,29 @@ import Link from './Elements/Link/Link';
 import Image from './Elements/Image/Image';
 import Video from './Elements/Video/Video';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Button } from '@material-tailwind/react';
+import {
+  Button,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsBody,
+  TabsHeader,
+  Typography,
+} from '@material-tailwind/react';
+import Select from 'react-select';
+import _ from 'lodash';
+import makeAnimated from 'react-select/animated';
+import {
+  checkServer,
+  useCheckServer,
+} from '../../../../api/hooks/useCheckServer';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { sendEmail } from '../../../../api/hooks/useSendEmail';
+
+const animatedComponents = makeAnimated();
 
 const Element = (props) => {
   const { attributes, children, element } = props;
-
   switch (element.type) {
     case 'headingOne':
       return (
@@ -151,7 +169,144 @@ const Leaf = ({ attributes, children, leaf }) => {
   }
   return <span {...attributes}>{children}</span>;
 };
-const SlateEditor = () => {
+const SlateEditor = ({ data }) => {
+  const [subject, setSubject] = useState('');
+  const [serverRunning, setServerRunning] = useState(false);
+  const [successEmails, setSuccessEmails] = useState([]);
+  const [failedEmails, setFailedEmails] = useState([]);
+  const [Recipients, setRecipients] = useState([
+    {
+      value: 'all',
+      label: 'All Students',
+    },
+  ]);
+  console.log(Recipients);
+  const checkServerCall = useQuery(
+    ['checkServer'],
+    () => checkServer(),
+    {
+      onSuccess: (data) => {
+        setServerRunning(true);
+      },
+    }
+  );
+
+  const sendEmailMutation = useMutation((emailData) => {
+    sendEmail(emailData);
+  });
+
+  const sendEmails = async (resend) => {
+    setFailedEmails([]);
+    setSuccessEmails([]);
+    let currentRecipients = [];
+    if (resend) {
+      currentRecipients = failedEmails;
+    } else if (
+      Recipients.find((recipient) => recipient.value === 'all')
+    ) {
+      currentRecipients = data
+        .filter(
+          (student) => student['Email Address'] !== 'Email Address'
+        )
+        .map((student) => {
+          return {
+            email: student['Email Address'],
+          };
+        });
+    } else if (
+      sectionNumbers
+        .map((s) => s.value)
+        .some((section) =>
+          Recipients.map((s) => s.value).includes(section)
+        )
+    ) {
+      // if the section number is selected
+      currentRecipients = data
+        .filter((student) =>
+          Recipients.map((s) => s.value).includes(student.Section)
+        )
+        .map((student) => {
+          return {
+            email: student['Email Address'],
+          };
+        });
+    } else {
+      currentRecipients = Recipients.map((recipient) => {
+        return {
+          email: recipient.value,
+        };
+      });
+    }
+
+    currentRecipients.forEach(async (recipient) => {
+      const studentData = data.find(
+        (student) => student['Email Address'] === recipient.email
+      );
+      try {
+        await sendEmailMutation.mutateAsync({
+          email: recipient.email,
+          subject,
+          html: html
+            .replace(
+              '{{STUDENT_NAME}}',
+              studentData['Student Name Arabic']
+            )
+            .replace('{{STUDENT_EMAIL}}', recipient.email)
+            .replace('{{STUDENT_ID}}', studentData['Student ID'])
+            .replace('{{SERIAL_NUMBER}}', studentData['Serial No#']),
+        });
+
+        setSuccessEmails((prev) => [...prev, recipient.email]);
+      } catch (error) {
+        setFailedEmails((prev) => [...prev, recipient.email]);
+      }
+    });
+  };
+
+  let options = data.map((student) => {
+    return {
+      value: student['Email Address'],
+      label:
+        student['Email Address'] +
+        ' - ' +
+        student['Student Name Arabic'] +
+        ' - ' +
+        student['Student ID'],
+    };
+  });
+
+  options = options.filter(
+    (option) => option.value !== 'Email Address'
+  );
+
+  options = [
+    ...options,
+    { value: 'all', label: 'All Students' },
+    { value: 'suspicious', label: 'Suspicious Students' },
+  ];
+
+  const dataBySection = _.groupBy(data, 'Section');
+
+  let sectionNumbers = [];
+
+  // Removing empty sections
+  if (Object.keys(dataBySection).length > 0) {
+    // remove last element
+    sectionNumbers = Object.keys(dataBySection).filter(
+      (section) => section !== 'Section'
+    );
+  } else {
+    sectionNumbers = Object.keys(dataBySection);
+  }
+
+  sectionNumbers = sectionNumbers.map((section) => {
+    return {
+      value: section,
+      label: section,
+    };
+  });
+  options = [...options, ...sectionNumbers];
+
   const editor = useMemo(
     () =>
       withHistory(
@@ -292,62 +447,233 @@ const SlateEditor = () => {
     }
   };
 
-  console.log(html);
   return (
-    <Slate
-      editor={editor}
-      value={value}
-      onChange={(newValue) => {
-        setHtml(newValue.map(serialize).join(''));
-        setValue(newValue);
-      }}
-    >
-      <Toolbar />
-      <div className="flex flex-row mb-4 gap-6">
-        <Button
-          className="btnActive"
-          onClick={() => {
-            editor.insertText('{{STUDENT_NAME}}');
-          }}
-        >
-          Student Name
-        </Button>
-        <Button
-          className="btnActive"
-          onClick={() => {
-            editor.insertText('{{STUDENT_EMAIL}}');
-          }}
-        >
-          Student Email
-        </Button>
-        <Button
-          className="btnActive"
-          onClick={() => {
-            editor.insertText('{{SERIAL_NUMBER}}');
-          }}
-        >
-          Serial Number
-        </Button>
-        <Button
-          className="btnActive"
-          onClick={() => {
-            editor.insertText('{{STUDENT_ID}}');
-          }}
-        >
-          Student ID
-        </Button>
-      </div>
-      <div
-        className="editor-wrapper p-8 w-full"
-        style={{ border: '1px solid #f3f3f3' }}
+    <div className="h-full">
+      <Slate
+        editor={editor}
+        value={value}
+        onChange={(newValue) => {
+          setHtml(newValue.map(serialize).join(''));
+          setValue(newValue);
+        }}
       >
-        <Editable
-          placeholder="Write something"
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
+        <Toolbar />
+        <div className="flex flex-row justify-between mb-4 ">
+          <div className="flex flex-row gap-6">
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.insertText('{{STUDENT_NAME}}');
+              }}
+            >
+              Student Name
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.insertText('{{STUDENT_EMAIL}}');
+              }}
+            >
+              Student Email
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.insertText('{{SERIAL_NUMBER}}');
+              }}
+            >
+              Serial Number
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.insertText('{{STUDENT_ID}}');
+              }}
+            >
+              Student ID
+            </Button>
+          </div>
+          <div className="flex flex-row items-center gap-4">
+            <Typography variant="h6" className="text-white">
+              Templates:
+            </Typography>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.deleteBackward(
+                  'character',
+                  editor.children.length
+                );
+                editor.insertNode([
+                  {
+                    type: 'paragaph',
+                    children: [{ text: 'Dear {{STUDENT_NAME}},' }],
+                  },
+                  { type: 'paragaph', children: [{ text: '' }] },
+                  {
+                    type: 'paragaph',
+                    children: [
+                      {
+                        text: 'This is just a test email to make sure that the automated email function works properly.',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'paragaph',
+                    children: [
+                      {
+                        text: 'Please add this email to your contacts to ensure all future emails are sent to your inbox.',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'paragaph',
+                    children: [
+                      {
+                        text: 'Please don’t send emails to this account. Use my KU email (',
+                      },
+                      {
+                        text: 'abeer.almaimouni@ku.edu.kw',
+                        bold: true,
+                      },
+                      { text: ')' },
+                    ],
+                  },
+                  {
+                    type: 'paragaph',
+                    children: [
+                      {
+                        text: 'or Ms. Teams should you need to reach out to me.',
+                      },
+                    ],
+                  },
+                  { type: 'paragaph', children: [{ text: '' }] },
+                  {
+                    type: 'paragaph',
+                    children: [
+                      {
+                        text: 'The coordinator of the ENGR 205 course,',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'paragaph',
+                    children: [{ text: 'Dr. Abeer Almaimouni' }],
+                  },
+                ]);
+              }}
+            >
+              1
+            </Button>
+          </div>
+        </div>
+        <input
+          type="text"
+          onChange={(e) => {
+            setSubject(e.target.value);
+          }}
+          placeholder="Subject"
+          className="py-4 pl-8 mb-4 rounded-md w-full"
         />
-      </div>
-    </Slate>
+        <div
+          className="editor-wrapper p-8 w-full"
+          style={{ border: '1px solid #f3f3f3' }}
+        >
+          <Editable
+            placeholder="Write something"
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
+          />
+        </div>
+      </Slate>
+      <Typography variant="h6" className="mt-4 text-white">
+        Recipients:
+      </Typography>
+      <Select
+        defaultValue={options.find(
+          (option) => option.value === 'all'
+        )}
+        on
+        onChange={setRecipients}
+        isMulti
+        components={animatedComponents}
+        className="my-4 z-50"
+        options={options}
+      />
+      <Button
+        className="btnActive mr-2"
+        onClick={() => {
+          checkServer.refetch();
+        }}
+      >
+        Check Server
+      </Button>
+      <Button
+        disabled={!serverRunning}
+        onClick={() => sendEmails(false)}
+        className="btnActive"
+      >
+        Send
+      </Button>
+      <Tabs
+        id="emails"
+        value="success"
+        className="mt-4 w-1/2 mx-auto"
+      >
+        <TabsHeader
+          className="bg-gray-700"
+          indicatorProps={{
+            className: 'bg-blue-500',
+          }}
+        >
+          <Tab
+            key={'success'}
+            value={'success'}
+            className="text-white"
+          >
+            Success
+          </Tab>
+          <Tab key={'failed'} value={'failed'} className="text-white">
+            Failed
+          </Tab>
+        </TabsHeader>
+        <TabsBody
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: 250 },
+          }}
+        >
+          <TabPanel key={'success'} value={'success'}>
+            {successEmails.map((s) => (
+              <Typography variant="body1" className="text-white">
+                {s}
+              </Typography>
+            ))}
+          </TabPanel>
+          <TabPanel
+            key={'failed'}
+            value={'failed'}
+            className="w-full flex flex-col"
+          >
+            {failedEmails.map((s) => (
+              <Typography variant="body1" className="text-white">
+                {s}
+              </Typography>
+            ))}
+            {failedEmails.length > 0 && (
+              <Button
+                className="btnActive mx-auto"
+                onClick={() => {
+                  sendEmails(true);
+                }}
+              >
+                Resend Emails
+              </Button>
+            )}
+          </TabPanel>
+        </TabsBody>
+      </Tabs>
+    </div>
   );
 };
 

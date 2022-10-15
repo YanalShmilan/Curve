@@ -1,10 +1,14 @@
 import React from 'react';
 import Editor from './components/SlateEditor/Editor';
 
-const Emails = () => {
+type Props = {
+  data: IStudent[],
+};
+
+const Emails = ({ data }: Props) => {
   return (
     <div>
-      <Editor />
+      <Editor data={data} />
     </div>
   );
 };

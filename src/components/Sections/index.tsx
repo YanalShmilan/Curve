@@ -32,7 +32,7 @@ const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
     sectionNumbers = Object.keys(dataBySection);
   }
 
-  const [selectedSection, setSelectedSection] = useState<number>(
+  const [selectedSection, setSelectedSection] = useState<string>(
     sectionNumbers[0]
   );
 
@@ -49,11 +49,11 @@ const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
             <div key={section} className="my-2 w-full">
               <Chip
                 onTap={() => {
-                  setSelectedSection(section);
+                  setSelectedSection(section.toString());
                 }}
                 className={cx('bg-gray-800 text-white', {
                   ' bg-blue-600 text-white':
-                    selectedSection == section,
+                    selectedSection === section.toString(),
                 })}
                 animate={{
                   mount: { y: 0 },

@@ -4,7 +4,7 @@ interface IStudent {
   'Student Name Arabic': string;
   'Student Gender': string;
   'Email Address': string;
-  Section: number;
+  Section: string;
   'Instruction Name Arabic': string;
   GPA: number;
   'Credit Registered': number;

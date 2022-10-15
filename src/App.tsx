@@ -156,7 +156,11 @@ function App() {
                 />
               </TabPanel>
               <TabPanel key={'emails'} value={'emails'}>
-                <Emails />
+                <Emails
+                  data={data.filter((student) => {
+                    return student.Status !== 'Withdrawn';
+                  })}
+                />
               </TabPanel>
             </TabsBody>
           </Tabs>

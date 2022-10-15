@@ -20,6 +20,7 @@ type chartsProps = {
 };
 
 const Charts = ({ data }: chartsProps) => {
+  data = data.filter((s) => s.Section !== 'Section');
   const dataBySection = _.groupBy(data, 'Section') as any;
 
   let sectionNumbers: any = [];
@@ -38,8 +39,6 @@ const Charts = ({ data }: chartsProps) => {
   // filter data by section
   const filterdData =
     selectedSection === 0 ? data : dataBySection[selectedSection];
-
-  console.log(dataBySection[selectedSection]);
 
   const componentRef = useRef(null);
   return (
