@@ -174,6 +174,7 @@ const SlateEditor = ({ data }) => {
   const [serverRunning, setServerRunning] = useState(false);
   const [successEmails, setSuccessEmails] = useState([]);
   const [failedEmails, setFailedEmails] = useState([]);
+  const [recipientsNumber, setRecipientsNumber] = useState(0);
   const [Recipients, setRecipients] = useState([
     {
       value: 'all',
@@ -191,8 +192,8 @@ const SlateEditor = ({ data }) => {
     }
   );
 
-  const sendEmailMutation = useMutation((emailData) => {
-    sendEmail(emailData);
+  const sendEmailMutation = useMutation(async (emailData) => {
+    await sendEmail(emailData);
   });
 
   const sendEmails = async (resend) => {
@@ -237,29 +238,37 @@ const SlateEditor = ({ data }) => {
         };
       });
     }
-
+    setRecipientsNumber(currentRecipients.length);
     currentRecipients.forEach(async (recipient) => {
       const studentData = data.find(
         (student) => student['Email Address'] === recipient.email
       );
+      const emailData = {
+        email: recipient.email,
+        subject,
+        html: html
+          .replace(
+            '{{STUDENT_NAME}}',
+            studentData['Student Name Arabic']
+          )
+          .replace('{{STUDENT_EMAIL}}', recipient.email)
+          .replace('{{STUDENT_ID}}', studentData['Student ID'])
+          .replace('{{SERIAL_NUMBER}}', studentData['Serial No#']),
+      };
       try {
-        await sendEmailMutation.mutateAsync({
-          email: recipient.email,
-          subject,
-          html: html
-            .replace(
-              '{{STUDENT_NAME}}',
-              studentData['Student Name Arabic']
-            )
-            .replace('{{STUDENT_EMAIL}}', recipient.email)
-            .replace('{{STUDENT_ID}}', studentData['Student ID'])
-            .replace('{{SERIAL_NUMBER}}', studentData['Serial No#']),
-        });
-
+        await sendEmailMutation.mutateAsync(emailData);
         setSuccessEmails((prev) => [...prev, recipient.email]);
       } catch (error) {
         setFailedEmails((prev) => [...prev, recipient.email]);
       }
+
+      // if (result.status === 200) {
+      //   setSuccessEmails((prev) => [...prev, recipient.email]);
+      // } else {
+      //   setFailedEmails((prev) => [...prev, recipient.email]);
+      // }
+      // wait 2 seconds before sending the next email
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     });
   };
 
@@ -600,21 +609,29 @@ const SlateEditor = ({ data }) => {
         className="my-4 z-50"
         options={options}
       />
-      <Button
-        className="btnActive mr-2"
-        onClick={() => {
-          checkServer.refetch();
-        }}
-      >
-        Check Server
-      </Button>
-      <Button
-        disabled={!serverRunning}
-        onClick={() => sendEmails(false)}
-        className="btnActive"
-      >
-        Send
-      </Button>
+      <div className="flex">
+        <Button
+          className="btnActive mr-2"
+          onClick={() => {
+            checkServer.refetch();
+          }}
+        >
+          Check Server
+        </Button>
+        <Button
+          disabled={!serverRunning}
+          onClick={() => sendEmails(false)}
+          className="btnActive flex flex-row items-center gap-2"
+        >
+          Send
+          {successEmails.length + failedEmails.length > 0 && (
+            <Typography variant="h6" className="text-white">
+              {successEmails.length + failedEmails.length} /{' '}
+              {recipientsNumber}
+            </Typography>
+          )}
+        </Button>
+      </div>
       <Tabs
         id="emails"
         value="success"
