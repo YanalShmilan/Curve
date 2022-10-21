@@ -196,12 +196,15 @@ const SlateEditor = ({ data }) => {
     await sendEmail(emailData);
   });
 
+  function delay(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
+
   const sendEmails = async (resend) => {
-    setFailedEmails([]);
-    setSuccessEmails([]);
     let currentRecipients = [];
     if (resend) {
-      currentRecipients = failedEmails;
+      console.log('resend');
+      currentRecipients = [...failedEmails];
     } else if (
       Recipients.find((recipient) => recipient.value === 'all')
     ) {
@@ -238,8 +241,13 @@ const SlateEditor = ({ data }) => {
         };
       });
     }
+    setFailedEmails([]);
+    setSuccessEmails([]);
+
     setRecipientsNumber(currentRecipients.length);
-    currentRecipients.forEach(async (recipient) => {
+
+    for (let i = 0; i < currentRecipients.length; i++) {
+      const recipient = currentRecipients[i];
       const studentData = data.find(
         (student) => student['Email Address'] === recipient.email
       );
@@ -257,19 +265,12 @@ const SlateEditor = ({ data }) => {
       };
       try {
         await sendEmailMutation.mutateAsync(emailData);
-        setSuccessEmails((prev) => [...prev, recipient.email]);
+        setSuccessEmails((prev) => [...prev, recipient]);
       } catch (error) {
-        setFailedEmails((prev) => [...prev, recipient.email]);
+        setFailedEmails((prev) => [...prev, recipient]);
       }
-
-      // if (result.status === 200) {
-      //   setSuccessEmails((prev) => [...prev, recipient.email]);
-      // } else {
-      //   setFailedEmails((prev) => [...prev, recipient.email]);
-      // }
-      // wait 2 seconds before sending the next email
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    });
+      await delay(5000);
+    }
   };
 
   let options = data.map((student) => {
@@ -663,7 +664,7 @@ const SlateEditor = ({ data }) => {
           <TabPanel key={'success'} value={'success'}>
             {successEmails.map((s) => (
               <Typography variant="body1" className="text-white">
-                {s}
+                {s.email}
               </Typography>
             ))}
           </TabPanel>
@@ -674,7 +675,7 @@ const SlateEditor = ({ data }) => {
           >
             {failedEmails.map((s) => (
               <Typography variant="body1" className="text-white">
-                {s}
+                {s.email}
               </Typography>
             ))}
             {failedEmails.length > 0 && (
