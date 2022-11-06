@@ -15,6 +15,9 @@ interface IStudent {
   Status?: string;
   Nationality: string;
   __rowNum__: number;
+  First: string;
+  Second: string;
+  Final: string;
 }
 
 export default IStudent;

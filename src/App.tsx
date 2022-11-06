@@ -23,14 +23,13 @@ import IStudent from './interfaces/IStudent';
 import Sections from './components/Sections';
 
 // Utils
-import _ from 'lodash';
 import Charts from './components/Charts';
 import Emails from './components/Emails/index';
+import Exams from './components/Exams';
 
 function App() {
   const fileInput = useRef<HTMLInputElement>(null);
-  const [data, setData] = useState<IStudent[]>([]);
-  const [sheetData, setSheetData] = useState<any>();
+  const [data, setData] = useState<any[]>([]);
 
   const handleFile = async () => {
     if (fileInput.current) {
@@ -39,37 +38,36 @@ function App() {
         const fileName = await currentFile.arrayBuffer();
         const sheet = read(fileName);
         const sheetName = sheet.SheetNames[0];
-        setSheetData({
-          sheetName,
-          fileName: currentFile.name,
-        });
         const sheetData = utils.sheet_to_json<IStudent>(
           sheet.Sheets[sheetName],
           {
-            header: [
-              'Serial No#',
-              'Student ID',
-              'Student Name Arabic',
-              'Student Gender',
-              'Email Address',
-              'Section',
-              'Instruction Name Arabic',
-              'GPA',
-              'Credit Registered',
-              'Repeat Count',
-              'Is GPA Probated?',
-              'Probation Count',
-              'Major',
-              'Status',
-              'Nationality',
-            ],
-            defval: '',
+            header: 1,
           }
         );
-        setData(sheetData);
+        const filteredData = sheetData.filter((row: any) => {
+          if (row[0] !== undefined) {
+            return row;
+          }
+        });
+        // sort data by index 0
+        const sortedData = filteredData.sort((a: any, b: any) => {
+          if (a[0] < b[0]) {
+            return -1;
+          }
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          return 0;
+        });
+        setData(sortedData);
       }
     }
   };
+
+  // @ts-ignore
+  const statusIndex = data[0]?.findIndex(
+    (item: string) => item === 'Status'
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
@@ -130,6 +128,13 @@ function App() {
               >
                 Emails
               </Tab>
+              <Tab
+                key={'exams'}
+                value={'exams'}
+                className="text-white"
+              >
+                Exams
+              </Tab>
             </TabsHeader>
             <TabsBody
               animate={{
@@ -138,28 +143,36 @@ function App() {
               }}
             >
               <TabPanel key={'home'} value={'home'}>
-                <Home data={data} setSpreadSheetData={setSheetData} />
+                <Home data={data} setSpreadSheetData={setData} />
               </TabPanel>
               <TabPanel key={'sections'} value={'sections'}>
                 <Sections
-                  data={data.filter((student) => {
-                    return student.Status !== 'Withdrawn';
+                  data={data.filter((student: any) => {
+                    return student[statusIndex] !== 'Withdrawn';
                   })}
-                  setSpreadSheetData={setSheetData}
+                  setSpreadSheetData={setData}
                 />
               </TabPanel>
               <TabPanel key={'charts'} value={'charts'}>
                 <Charts
-                  data={data.filter((student) => {
-                    return student.Status !== 'Withdrawn';
+                  data={data.filter((student: any) => {
+                    return student[statusIndex] !== 'Withdrawn';
                   })}
                 />
               </TabPanel>
               <TabPanel key={'emails'} value={'emails'}>
                 <Emails
-                  data={data.filter((student) => {
-                    return student.Status !== 'Withdrawn';
+                  data={data.filter((student: any) => {
+                    return student[statusIndex] !== 'Withdrawn';
                   })}
+                />
+              </TabPanel>
+              <TabPanel key={'exams'} value={'exams'}>
+                <Exams
+                  data={data.filter((student: any) => {
+                    return student[statusIndex] !== 'Withdrawn';
+                  })}
+                  setData={setData}
                 />
               </TabPanel>
             </TabsBody>

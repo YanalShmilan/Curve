@@ -21,7 +21,21 @@ type chartsProps = {
 
 const Charts = ({ data }: chartsProps) => {
   data = data.filter((s) => s.Section !== 'Section');
-  const dataBySection = _.groupBy(data, 'Section') as any;
+
+  // @ts-ignore
+  const sectionIndex = data[0].findIndex(
+    (item: string) => item === 'Section'
+  );
+
+  // @ts-ignore
+  const instructorNameIndex = data[0].findIndex(
+    (item: string) => item === 'Instruction Name Arabic'
+  );
+
+  const dataBySection = _.groupBy(
+    data,
+    (student: any) => student[sectionIndex]
+  ) as any;
 
   let sectionNumbers: any = [];
 
@@ -38,7 +52,11 @@ const Charts = ({ data }: chartsProps) => {
 
   // filter data by section
   const filterdData =
-    selectedSection === 0 ? data : dataBySection[selectedSection];
+    selectedSection === 0
+      ? data
+      : data.filter(
+          (student: any) => student[sectionIndex] === selectedSection
+        );
 
   const componentRef = useRef(null);
   return (
@@ -75,7 +93,7 @@ const Charts = ({ data }: chartsProps) => {
                 value={
                   section +
                   ' - ' +
-                  dataBySection[section][0]['Instruction Name Arabic']
+                  dataBySection[section][0][instructorNameIndex]
                 }
               />
             </div>
@@ -117,7 +135,9 @@ const Charts = ({ data }: chartsProps) => {
             </div>
             <Card>
               <div className="flex font-bold flex-col text-lg h-full p-2 items-center justify-center ">
-                {filterdData.length}
+                {filterdData.length !== data.length
+                  ? filterdData.length
+                  : filterdData.length - 1}
                 <h1 className=" font-normal text-gray-800">
                   Students
                 </h1>
@@ -135,22 +155,57 @@ const Charts = ({ data }: chartsProps) => {
               <div className=" absolute top-24 z-50 w-max right-2">
                 {selectedSection == 0
                   ? null
-                  : filterdData[0]['Instruction Name Arabic']}
+                  : // @ts-ignore
+                    filterdData[0][instructorNameIndex]}
               </div>
             </Card>
           </div>
         </div>
         <div>
-          <ProbationRepeatChart data={filterdData} />
+          <ProbationRepeatChart
+            data={filterdData}
+            propationIndex={
+              // @ts-ignore
+              data[0].findIndex(
+                (item: string) => item === 'Probation Count'
+              )
+            }
+            repeatIndex={
+              // @ts-ignore
+              data[0].findIndex(
+                (item: string) => item === ' Repeat Count'
+              )
+            }
+          />
         </div>
         <div className="px-3">
-          <DepartmentsChart data={filterdData} />
+          <DepartmentsChart
+            departmentIndex={
+              // @ts-ignore
+              data[0].findIndex((item: string) => item === 'Major')
+            }
+            data={filterdData}
+          />
         </div>
         <div className="">
-          <GpaChart data={filterdData} />
+          <GpaChart
+            data={filterdData}
+            gpaIndex={
+              // @ts-ignore
+              data[0].findIndex((item: string) => item === 'GPA')
+            }
+          />
         </div>
         <div className="px-3 ">
-          <GenderChart data={filterdData} />
+          <GenderChart
+            data={filterdData}
+            genderIndex={
+              // @ts-ignore
+              data[0].findIndex(
+                (item: string) => item === 'Student Gender'
+              )
+            }
+          />
         </div>
       </Card>
     </div>

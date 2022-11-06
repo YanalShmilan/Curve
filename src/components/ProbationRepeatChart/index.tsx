@@ -15,39 +15,33 @@ import IStudent from '../../interfaces/IStudent';
 
 type probationRepeatChartProps = {
   data: IStudent[];
+  propationIndex: number;
+  repeatIndex: number;
 };
 
 const ProbationRepeatChart = ({
   data,
+  propationIndex,
+  repeatIndex,
 }: probationRepeatChartProps) => {
   const probation = _.groupBy(
     // @ts-ignore
-    data.map((student) =>
-      // @ts-ignore
-      student['Probation Count'] !== ''
-        ? student
-        : (student['Probation Count'] = 0)
-    ),
-    'Probation Count'
+    data,
+    (student: any) => student[propationIndex]
   ) as any;
 
   const probationKeys = Object.keys(probation).filter(
-    (key) => key !== 'Probation Count'
+    (key) => key !== 'Probation Count' && key !== 'undefined'
   );
 
   const repeat = _.groupBy(
     // @ts-ignore
-    data.map((student) =>
-      // @ts-ignore
-      student['Repeat Count'] !== ''
-        ? student
-        : (student['Repeat Count'] = 0)
-    ),
-    'Repeat Count'
+    data,
+    (student: any) => student[repeatIndex]
   ) as any;
 
   const repeatKeys = Object.keys(repeat).filter(
-    (key) => key !== ' Repeat Count'
+    (key) => key !== ' Repeat Count' && key !== 'undefined'
   );
 
   return (

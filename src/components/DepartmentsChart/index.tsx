@@ -17,12 +17,18 @@ import { ResponsivePie } from '@nivo/pie';
 
 type departmentsChartProps = {
   data: IStudent[];
+  departmentIndex: number;
 };
 
-const DepartmentsChart = ({ data }: departmentsChartProps) => {
+const DepartmentsChart = ({
+  data,
+  departmentIndex,
+}: departmentsChartProps) => {
   const dataByDepartment = _.groupBy(
-    data.filter((student) => student.Major !== 'Major'),
-    'Major'
+    data.filter(
+      (student: any) => student[departmentIndex] !== 'Major'
+    ),
+    (student: any) => student[departmentIndex]
   ) as any;
 
   const chartData = Object.keys(dataByDepartment).map(

@@ -17,14 +17,15 @@ import { ResponsiveBar } from '@nivo/bar';
 
 type genderChartProps = {
   data: IStudent[];
+  genderIndex: number;
 };
 
-const GenderChart = ({ data }: genderChartProps) => {
+const GenderChart = ({ data, genderIndex }: genderChartProps) => {
   const dataByGender = _.groupBy(
     data.filter(
-      (student) => student['Student Gender'] !== 'Student Gender'
+      (student: any) => student[genderIndex] !== 'Student Gender'
     ),
-    'Student Gender'
+    (student: any) => student[genderIndex]
   ) as any;
 
   const chartData = Object.keys(dataByGender).map((gender) => {

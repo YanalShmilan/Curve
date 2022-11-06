@@ -18,7 +18,20 @@ type sectionsProps = {
 };
 
 const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
-  const dataBySection = _.groupBy(data, 'Section') as any;
+  // @ts-ignore
+  const sectionIndex = data[0].findIndex(
+    (item: string) => item === 'Section'
+  );
+
+  // @ts-ignore
+  const instructorNameIndex = data[0].findIndex(
+    (item: string) => item === 'Instruction Name Arabic'
+  );
+
+  const dataBySection = _.groupBy(
+    data,
+    (student: any) => student[sectionIndex]
+  ) as any;
 
   let sectionNumbers: any = [];
 
@@ -38,15 +51,15 @@ const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
 
   // filter data by section
   const filterdData = data.filter(
-    (item) => item.Section == selectedSection
+    (student: any) => student[sectionIndex] === selectedSection
   );
 
   return (
     <div className="flex flex-col gap-y-4">
-      <div className="flex flex-row justify-left gap-x-6 overflow-x-scroll">
+      <div className="flex flex-row gap-x-6 overflow-x-scroll">
         {sectionNumbers.map((section: number) => {
           return (
-            <div key={section} className="my-2 w-full">
+            <div key={section} className="my-2 ">
               <Chip
                 onTap={() => {
                   setSelectedSection(section.toString());
@@ -62,7 +75,7 @@ const Sections = ({ data, setSpreadSheetData }: sectionsProps) => {
                 value={
                   section +
                   ' - ' +
-                  dataBySection[section][0]['Instruction Name Arabic']
+                  dataBySection[section][0][instructorNameIndex]
                 }
               />
             </div>

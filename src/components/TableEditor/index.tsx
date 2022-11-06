@@ -78,7 +78,12 @@ const TableEditor = ({
           readOnly={!readOnly}
           rowHeaders={true}
           licenseKey="non-commercial-and-evaluation"
-          height="700"
+          height={600}
+          // height={
+          //   spreadSheetData.length * 30 + 100 > 700
+          //     ? 700
+          //     : spreadSheetData.length * 30 + 20
+          // }
           width="100%"
           stretchH="all"
           modifyColWidth={function (width: any, col: any) {
@@ -126,27 +131,27 @@ const TableEditor = ({
             }
           }}
           wordWrap={false}
-          afterChange={(changes: any, source: any) => {
-            if (source === 'edit' && changes) {
-              const rowIndex = changes[0][0];
-              const colIndex = changes[0][1];
-              const value = changes[0][3];
-              const editedData = spreadSheetData.map(
-                (row: [], index: number) => {
-                  if (index === rowIndex) {
-                    return row.map((item: any, i: any) => {
-                      if (i === colIndex) {
-                        return value;
-                      }
-                      return item;
-                    });
-                  }
-                  return row;
-                }
-              );
-              setSpreadSheetData(editedData);
-            }
-          }}
+          // afterChange={(changes: any, source: any) => {
+          //   if (source === 'edit' && changes) {
+          //     const rowIndex = changes[0][0];
+          //     const colIndex = changes[0][1];
+          //     const value = changes[0][3];
+          //     const editedData = spreadSheetData.map(
+          //       (row: [], index: number) => {
+          //         if (index === rowIndex) {
+          //           return row.map((item: any, i: any) => {
+          //             if (i === colIndex) {
+          //               return value;
+          //             }
+          //             return item;
+          //           });
+          //         }
+          //         return row;
+          //       }
+          //     );
+          //     setSpreadSheetData(editedData);
+          //   }
+          // }}
         />
       </div>
     </div>

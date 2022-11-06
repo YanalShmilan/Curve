@@ -14,7 +14,6 @@ import './Editor.css';
 import Link from './Elements/Link/Link';
 import Image from './Elements/Image/Image';
 import Video from './Elements/Video/Video';
-import { renderToStaticMarkup } from 'react-dom/server';
 import {
   Button,
   Tab,
@@ -27,6 +26,7 @@ import {
 import Select from 'react-select';
 import _ from 'lodash';
 import makeAnimated from 'react-select/animated';
+import templates from './template.js';
 import {
   checkServer,
   useCheckServer,
@@ -171,6 +171,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 const SlateEditor = ({ data }) => {
   const [subject, setSubject] = useState('');
+  const [password, setPassword] = useState('');
   const [serverRunning, setServerRunning] = useState(false);
   const [successEmails, setSuccessEmails] = useState([]);
   const [failedEmails, setFailedEmails] = useState([]);
@@ -181,7 +182,7 @@ const SlateEditor = ({ data }) => {
       label: 'All Students',
     },
   ]);
-  console.log(Recipients);
+
   const checkServerCall = useQuery(
     ['checkServer'],
     () => checkServer(),
@@ -200,21 +201,75 @@ const SlateEditor = ({ data }) => {
     return new Promise((resolve) => setTimeout(resolve, time));
   }
 
+  // Email Address index
+  const emailAdressIndex = data[0].findIndex(
+    (item) => item === 'Email Address'
+  );
+
+  // Student Name index
+  const studentNameIndex = data[0].findIndex(
+    (item) => item === 'Student Name Arabic'
+  );
+
+  // Student Id index
+  const studentIdIndex = data[0].findIndex(
+    (item) => item === 'Student ID'
+  );
+
+  // First exam index
+  const firstSerialNumberIndex = data[0].findIndex(
+    (item: string) => item === `First - id`
+  );
+
+  // First exam room index
+  const firstRoomIndex = data[0].findIndex(
+    (item: string) => item === `First`
+  );
+
+  // Second exam index
+  const secondSerialNumberIndex = data[0].findIndex(
+    (item: string) => item === `Second - id`
+  );
+
+  // Second exam room index
+  const secondRoomIndex = data[0].findIndex(
+    (item: string) => item === `Second`
+  );
+
+  // Third exam index
+  const finalSerialNumberIndex = data[0].findIndex(
+    (item: string) => item === `Final - id`
+  );
+
+  // Third exam room index
+  const finalRoomIndex = data[0].findIndex(
+    (item: string) => item === `Final`
+  );
+
+  // Section index
+  const sectionIndex = data[0].findIndex(
+    (item) => item === 'Section'
+  );
+
+  // Serial Number index
+  const serialNumberIndex = data[0].findIndex(
+    (item) => item === 'Serial No#'
+  );
+
   const sendEmails = async (resend) => {
     let currentRecipients = [];
     if (resend) {
-      console.log('resend');
       currentRecipients = [...failedEmails];
     } else if (
       Recipients.find((recipient) => recipient.value === 'all')
     ) {
       currentRecipients = data
         .filter(
-          (student) => student['Email Address'] !== 'Email Address'
+          (student) => student[emailAdressIndex] !== 'Email Address'
         )
         .map((student) => {
           return {
-            email: student['Email Address'],
+            email: student[emailAdressIndex],
           };
         });
     } else if (
@@ -227,11 +282,13 @@ const SlateEditor = ({ data }) => {
       // if the section number is selected
       currentRecipients = data
         .filter((student) =>
-          Recipients.map((s) => s.value).includes(student.Section)
+          Recipients.map((s) => s.value).includes(
+            student[sectionIndex]
+          )
         )
         .map((student) => {
           return {
-            email: student['Email Address'],
+            email: student[emailAdressIndex],
           };
         });
     } else {
@@ -249,19 +306,38 @@ const SlateEditor = ({ data }) => {
     for (let i = 0; i < currentRecipients.length; i++) {
       const recipient = currentRecipients[i];
       const studentData = data.find(
-        (student) => student['Email Address'] === recipient.email
+        (student) => student[emailAdressIndex] === recipient.email
       );
       const emailData = {
         email: recipient.email,
         subject,
+        pass: password,
         html: html
-          .replace(
+          .replaceAll(
             '{{STUDENT_NAME}}',
-            studentData['Student Name Arabic']
+            studentData[studentNameIndex]
           )
-          .replace('{{STUDENT_EMAIL}}', recipient.email)
-          .replace('{{STUDENT_ID}}', studentData['Student ID'])
-          .replace('{{SERIAL_NUMBER}}', studentData['Serial No#']),
+          .replaceAll('{{STUDENT_EMAIL}}', recipient.email)
+          .replaceAll('{{STUDENT_ID}}', studentData[studentIdIndex])
+          .replaceAll(
+            '{{SERIAL_NUMBER}}',
+            studentData[serialNumberIndex]
+          )
+          .replaceAll(
+            '{{FIRST_SERIAL}}',
+            studentData[firstSerialNumberIndex]
+          )
+          .replaceAll('{{FIRST_ROOM}}', studentData[firstRoomIndex])
+          .replaceAll(
+            '{{SECOND_SERIAL}}',
+            studentData[secondSerialNumberIndex]
+          )
+          .replaceAll('{{SECOND_ROOM}}', studentData[secondRoomIndex])
+          .replaceAll(
+            '{{FINAL_SERIAL}}',
+            studentData[finalSerialNumberIndex]
+          )
+          .replaceAll('{{FINAL_ROOM}}', studentData[finalRoomIndex]),
       };
       try {
         await sendEmailMutation.mutateAsync(emailData);
@@ -275,13 +351,13 @@ const SlateEditor = ({ data }) => {
 
   let options = data.map((student) => {
     return {
-      value: student['Email Address'],
+      value: student[emailAdressIndex],
       label:
-        student['Email Address'] +
+        student[emailAdressIndex] +
         ' - ' +
-        student['Student Name Arabic'] +
+        student[studentNameIndex] +
         ' - ' +
-        student['Student ID'],
+        student[studentIdIndex],
     };
   });
 
@@ -295,7 +371,10 @@ const SlateEditor = ({ data }) => {
     { value: 'suspicious', label: 'Suspicious Students' },
   ];
 
-  const dataBySection = _.groupBy(data, 'Section');
+  const dataBySection = _.groupBy(
+    data,
+    (student) => student[sectionIndex]
+  );
 
   let sectionNumbers = [];
 
@@ -514,66 +593,46 @@ const SlateEditor = ({ data }) => {
                   'character',
                   editor.children.length
                 );
-                editor.insertNode([
-                  {
-                    type: 'paragaph',
-                    children: [{ text: 'Dear {{STUDENT_NAME}},' }],
-                  },
-                  { type: 'paragaph', children: [{ text: '' }] },
-                  {
-                    type: 'paragaph',
-                    children: [
-                      {
-                        text: 'This is just a test email to make sure that the automated email function works properly.',
-                      },
-                    ],
-                  },
-                  {
-                    type: 'paragaph',
-                    children: [
-                      {
-                        text: 'Please add this email to your contacts to ensure all future emails are sent to your inbox.',
-                      },
-                    ],
-                  },
-                  {
-                    type: 'paragaph',
-                    children: [
-                      {
-                        text: 'Please don’t send emails to this account. Use my KU email (',
-                      },
-                      {
-                        text: 'abeer.almaimouni@ku.edu.kw',
-                        bold: true,
-                      },
-                      { text: ')' },
-                    ],
-                  },
-                  {
-                    type: 'paragaph',
-                    children: [
-                      {
-                        text: 'or Ms. Teams should you need to reach out to me.',
-                      },
-                    ],
-                  },
-                  { type: 'paragaph', children: [{ text: '' }] },
-                  {
-                    type: 'paragaph',
-                    children: [
-                      {
-                        text: 'The coordinator of the ENGR 205 course,',
-                      },
-                    ],
-                  },
-                  {
-                    type: 'paragaph',
-                    children: [{ text: 'Dr. Abeer Almaimouni' }],
-                  },
-                ]);
+                editor.insertNode(templates.test);
               }}
             >
-              1
+              Test Email
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.deleteBackward(
+                  'character',
+                  editor.children.length
+                );
+                editor.insertNode(templates.first);
+              }}
+            >
+              Exam 1
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.deleteBackward(
+                  'character',
+                  editor.children.length
+                );
+                editor.insertNode(templates.second);
+              }}
+            >
+              Exam 2
+            </Button>
+            <Button
+              className="btnActive"
+              onClick={() => {
+                editor.deleteBackward(
+                  'character',
+                  editor.children.length
+                );
+                editor.insertNode(templates.final);
+              }}
+            >
+              Exam 3
             </Button>
           </div>
         </div>
@@ -583,6 +642,14 @@ const SlateEditor = ({ data }) => {
             setSubject(e.target.value);
           }}
           placeholder="Subject"
+          className="py-4 pl-8 mb-4 rounded-md w-full"
+        />
+        <input
+          type="text"
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          placeholder="Password"
           className="py-4 pl-8 mb-4 rounded-md w-full"
         />
         <div

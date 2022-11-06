@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 // Props
 type homeProps = {
-  data: IStudent[];
+  data: any[];
   setSpreadSheetData: React.Dispatch<React.SetStateAction<any>>;
 };
 

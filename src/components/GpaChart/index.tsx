@@ -15,17 +15,18 @@ import _ from 'lodash';
 // Chart
 import { ResponsivePie } from '@nivo/pie';
 
-type departmentsChartProps = {
+type GpaChartProps = {
   data: IStudent[];
+  gpaIndex: number;
 };
 
-const GpaChart = ({ data }: departmentsChartProps) => {
+const GpaChart = ({ data, gpaIndex }: GpaChartProps) => {
   const dataByGpa = _.groupBy(
     data
       // @ts-ignore
-      .filter((student) => student.GPA !== 'GPA')
-      .map((student) => {
-        const gpa = (student.GPA + 1) * 20;
+      .filter((student) => student[gpaIndex] !== 'GPA')
+      .map((student: any) => {
+        const gpa = (student[gpaIndex] + 1) * 20;
         if (gpa >= 90) {
           return { ...student, GPA: 'A' };
         } else if (gpa >= 80) {
@@ -38,7 +39,7 @@ const GpaChart = ({ data }: departmentsChartProps) => {
           return { ...student, GPA: 'F' };
         }
       }),
-    'GPA'
+    (student: any) => student.GPA
   ) as any;
 
   const gpaKeys = Object.keys(dataByGpa);
