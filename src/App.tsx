@@ -7,13 +7,17 @@ import {
   Tab,
   TabPanel,
 } from '@material-tailwind/react';
+import { ToastContainer, toast } from 'react-toastify';
 import Home from './components/Home';
+
+// Styles
+import 'react-toastify/dist/ReactToastify.css';
 
 // Icons
 import { AddSquare } from 'iconsax-react';
 
 // React
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // XLSX
 import { read, utils } from 'xlsx';
@@ -64,6 +68,11 @@ function App() {
     }
   };
 
+  // every setDAta call will trigger this useEffect
+  useEffect(() => {
+    toast.warning('Data has been updated, please export again');
+  }, [data]);
+
   // @ts-ignore
   const statusIndex = data[0]?.findIndex(
     (item: string) => item === 'Status'
@@ -97,6 +106,7 @@ function App() {
       ) : (
         // If there is excel file, show tabs
         <div className="w-full px-16 mx-auto mt-16">
+          <ToastContainer />
           <Tabs id="custom-animation" value="home">
             <TabsHeader
               className="bg-gray-700"

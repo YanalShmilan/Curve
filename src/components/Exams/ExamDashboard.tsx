@@ -15,6 +15,7 @@ import {
 import cx from 'classnames';
 import TableEditor from '../TableEditor';
 import { utils, writeFile } from 'xlsx';
+import GradeModal from './GradeModal';
 
 type Props = {
   data: any;
@@ -24,6 +25,7 @@ type Props = {
 
 const ExamDashboard = ({ data, examName, setData }: Props) => {
   const [open, setOpen] = React.useState(false);
+  const [openGrade, setOpenGrade] = React.useState(false);
   const [requiredDocument, setRequiredDocument] =
     React.useState<string>();
   const [title, setTitle] = React.useState<string>();
@@ -39,10 +41,22 @@ const ExamDashboard = ({ data, examName, setData }: Props) => {
     data,
     (student: any) => student[examIndex]
   );
+
   // get the rooms
   const rooms: string[] = Object.keys(groupedStudents).filter(
     (e) => e !== '' && e !== examName
   );
+
+  // get questions associated with the exam
+  const questions = data[0].filter((item: string) =>
+    item.includes(examName)
+  );
+
+  // exclude the exam name and the id
+  const questionsWithoutExamName = questions.filter(
+    (item: string) => item !== examName && !item.includes('id')
+  );
+  console.log(questionsWithoutExamName);
 
   const [selectedRoom, setSelectedRoom] = React.useState(rooms[0]);
 
@@ -149,15 +163,22 @@ const ExamDashboard = ({ data, examName, setData }: Props) => {
     utils.book_append_sheet(wb, ws, 'Sheet1');
     writeFile(wb, `${requiredDocument}.xlsx`);
   };
-  console.log(rooms);
 
   return (
     <div>
+      <GradeModal
+        open={openGrade}
+        setOpen={setOpenGrade}
+        questions={questionsWithoutExamName}
+        data={data}
+        setData={setData}
+        examName={examName}
+      />
       <div className="flex flex-row items-center text-white w-full gap-x-6 overflow-x-scroll">
         Rooms:{' '}
         {rooms.map((room: any) => {
           return (
-            <div key={room} className="my-2 w-full">
+            <div key={room} className="my-2">
               <Chip
                 onTap={() => {
                   setSelectedRoom(room);
@@ -182,6 +203,14 @@ const ExamDashboard = ({ data, examName, setData }: Props) => {
       </div>
       <Button className="btnActive mt-4" onClick={handleOpen}>
         Export
+      </Button>
+      <Button
+        className="btnActive mt-4 ml-2"
+        onClick={() => {
+          setOpenGrade(true);
+        }}
+      >
+        Grade
       </Button>
       <Dialog open={open} handler={handleOpen}>
         <DialogHeader>Export</DialogHeader>
@@ -244,7 +273,6 @@ const ExamDashboard = ({ data, examName, setData }: Props) => {
           sheetName="Students"
         />
       </div>
-      <Button>Attendence Sheet</Button>
     </div>
   );
 };
